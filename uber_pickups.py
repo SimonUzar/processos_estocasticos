@@ -8,10 +8,7 @@ def transformarArquivo():
     df_csv = pd.read_csv(csv_file_path, encoding='latin1', sep=';')
     df_csv.to_parquet(output_parquet_file_path, index=False)
 
-
 def transformarColunas():
-    df_parquet = pd.read_parquet('MICRODADOS_ENEM_2023.parquet')
-
     df_parquet['NU_INSCRICAO'] = df_parquet['NU_INSCRICAO'].astype('int32')
     df_parquet['NU_ANO'] = df_parquet['NU_ANO'].astype('int16')
     df_parquet['TP_FAIXA_ETARIA'] = df_parquet['TP_FAIXA_ETARIA'].astype('int16')
@@ -89,8 +86,16 @@ def transformarColunas():
     df_parquet['Q0024'] = df_parquet['Q004'].astype('category')
     df_parquet['Q0025'] = df_parquet['Q004'].astype('category')
 
+def arredondarNotas():
+    df_excel_csv['NU_NOTA_CN'] = df_excel_csv['NU_NOTA_CN'].round(0)
+    df_excel_csv['NU_NOTA_CH'] = df_excel_csv['NU_NOTA_CH'].round(0)
+    df_excel_csv['NU_NOTA_LC'] = df_excel_csv['NU_NOTA_LC'].round(0)
+    df_excel_csv['NU_NOTA_MT'] = df_excel_csv['NU_NOTA_MT'].round(0)
+
+
+def validarDados():
+    
 
 df_parquet = pd.read_parquet('MICRODADOS_ENEM_2023.parquet')
 
-print(f"Tipo: {df_parquet['Q005']}")
 
