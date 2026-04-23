@@ -1,9 +1,9 @@
 import pandas as pd
 
-df_csv = pd.read_csv('MICRODADOS_ENEM_2023.csv', encoding='latin1', sep=';')
-df_csv.to_parquet('MICRODADOS_ENEM_2023.parquet', index=False)
+df_csv = pd.read_csv(r"arquivos\MICRODADOS_ENEM_2023.csv", encoding='latin1', sep=';')
+df_csv.to_parquet(r"arquivos\MICRODADOS_ENEM_2023.parquet", index=False)
 
-df_parquet = pd.read_parquet('MICRODADOS_ENEM_2023.parquet')
+df_parquet = pd.read_parquet(r"arquivos\MICRODADOS_ENEM_2023.parquet")
 
 def transformarColunas():
     # Nessa função iremos alterar o tamanho das colunas, otimizando o consumo de armazenamento e velocidade de busca
@@ -312,7 +312,7 @@ def metricasColunas():
             '1º Quartil': df_parquet[col].quantile(0.25),
             '3º Quartil': df_parquet[col].quantile(0.75),
             'Amplitude': df_parquet[col].max() - df_parquet[col].min(),
-            'Assimetria': df_parquet[col].skew,
+            'Assimetria': df_parquet[col].skew(),
             'Curtose': df_parquet[col].kurtosis(),
             'Coeficiente de Pearson': 3*(df_parquet[col].mean() - df_parquet[col].median())/df_parquet[col].std()
         }
@@ -325,9 +325,26 @@ def metricasColunas():
         print()
 
 
+def apenasFaltantes():
+    # Vamos separar para um dataframe de faltantes, para verificarmos a taxa de abstenção
+
+    colunas_presenca = [
+    'TP_PRESENCA_CN', 
+    'TP_PRESENCA_CH', 
+    'TP_PRESENCA_LC', 
+    'TP_PRESENCA_MT'
+    ]
+
+    df_faltantes = df_parquet[(df_parquet[colunas_presenca] == 0).any(axis=1)]
+
+    df_faltantes.to_parquet(r"arquivos\MICRODADOS_ENEM_FALTANTES_2023.parquet", index=False)
+
+
 transformarColunas()
 
 validarColunas()
+
+apenasFaltantes()
 
 validarPresencasNotas()
 
@@ -340,6 +357,6 @@ df_parquet = df_parquet[df_parquet['SG_UF_PROVA'] == 'SC']
 df_brasil = df_parquet[df_parquet['SG_UF_PROVA'] != 'SC']
 
 
-df_parquet.to_parquet('arquivos\MICRODADOS_ENEM_SC_2023.parquet', index=False)
-df_brasil.to_parquet('arquivos\MICRODADOS_ENEM_BRASIL_2023.parquet', index=False)
+df_parquet.to_parquet(r"arquivos\MICRODADOS_ENEM_SC_2023.parquet", index=False)
+df_brasil.to_parquet(r"arquivos\MICRODADOS_ENEM_BRASIL_2023.parquet", index=False)
 
