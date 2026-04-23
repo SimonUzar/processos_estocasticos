@@ -170,7 +170,6 @@ with abas[9]:
 with abas[10]:
     st.write(f"Pergunta 11 - Quais matéris tem as maiores notas?")
 
-    st.plotly_chart(plotarGrafico(dados_2, '', estado_2), width='stretch')
 
 with abas[11]:
     st.write(f"Pergunta 12 - Língua Estrangeira, qual teve maior desempenho?")
@@ -205,7 +204,32 @@ with abas[13]:
 with abas[14]:
     st.write(f"Pergunta 15 - Local da Prova, influencia?")
 
+    # 1. Filtrar apenas o estado de Santa Catarina
+    df_sc = df[df['SG_UF_PROVA'] == 'SC'].copy()
 
+    # 2. Agrupar por município para contar candidatos
+    df_municipios_sc = df_sc.groupby('NO_MUNICIPIO_PROVA').size().reset_index(name='CANDIDATOS')
+
+    # 3. Ordenar para os municípios com mais candidatos aparecerem primeiro
+    df_municipios_sc = df_municipios_sc.sort_values(by='CANDIDATOS', ascending=False)
+
+    # 4. Criar um gráfico de barras (Heatmap de volume)
+    fig = px.bar(
+        df_municipios_sc.head(20), # Mostra os 20 maiores municípios
+        x='CANDIDATOS',
+        y='NO_MUNICIPIO_PROVA',
+        orientation='h', # Barra horizontal para facilitar leitura dos nomes
+        color='CANDIDATOS',
+        color_continuous_scale='Reds',
+        title='Top 20 Municípios com mais Candidatos em Santa Catarina',
+        labels={'NO_MUNICIPIO_PROVA': 'Município', 'CANDIDATOS': 'Total de Inscritos'}
+    )
+
+    # Ajustar o layout para que os nomes não fiquem cortados
+    fig.update_layout(yaxis={'categoryorder':'total ascending'})
+    fig.show()
+
+    
 
 with abas[15]:
     st.write(f"Pergunta 16 - Tem televisão?")
@@ -241,5 +265,5 @@ with abas[18]:
     st.write(f"Pergunta 19 - Taxa de abstenção")
 
 
-with abas[20]:
+with abas[19]:
     st.write(f"Pergunta 20 - Notas na redação")
