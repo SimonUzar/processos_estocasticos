@@ -277,19 +277,19 @@ def validarPresencasNotas():
 
     # Apenas presentes em todos os dias
     df_parquet = df_parquet[
-    ((df_parquet['TP_PRESENCA_CN'] == 1)) &
-    ((df_parquet['TP_PRESENCA_CH'] == 1)) &
-    ((df_parquet['TP_PRESENCA_LC'] == 1)) &
-    ((df_parquet['TP_PRESENCA_MT'] == 1))
+        ((df_parquet['TP_PRESENCA_CN'] == 1)) &
+        ((df_parquet['TP_PRESENCA_CH'] == 1)) &
+        ((df_parquet['TP_PRESENCA_LC'] == 1)) &
+        ((df_parquet['TP_PRESENCA_MT'] == 1))
     ]
 
     # Sem notas zeradas
     df_parquet = df_parquet[
-    ((df_parquet['NU_NOTA_CN'] != 0)) &
-    ((df_parquet['NU_NOTA_CH'] != 0)) &
-    ((df_parquet['NU_NOTA_LC'] != 0)) &
-    ((df_parquet['NU_NOTA_MT'] != 0)) &
-    ((df_parquet['NU_NOTA_REDACAO'] != 0))
+        ((df_parquet['NU_NOTA_CN'] > 0)) &
+        ((df_parquet['NU_NOTA_CH'] > 0)) &
+        ((df_parquet['NU_NOTA_LC'] > 0)) &
+        ((df_parquet['NU_NOTA_MT'] > 0)) &
+        ((df_parquet['NU_NOTA_REDACAO'] > 0))
     ]
 
 
@@ -340,6 +340,20 @@ def apenasFaltantes():
     df_faltantes.to_parquet(r"arquivos\MICRODADOS_ENEM_FALTANTES_2023.parquet", index=False)
 
 
+def traduzirValoresColunas():
+    # Q001
+    dicionario_tradução_q001 = {
+        'A': 'Nunca estudou',
+        'B': 'Não completou a 4ª série/5º ano do Ensino Fundamental.',
+        'C': 'Ensino Fundamental Completo',
+        'D': 'Ensino Médio Incompleto',
+        'E': 'Ensino Médio Completo',
+    }
+
+    df_parquet['DESCRICAO_ESCOLARIDADE'] = df_parquet['Q001'].map(dicionario_tradução_q001)
+    # Q001
+
+
 transformarColunas()
 
 validarColunas()
@@ -353,10 +367,10 @@ arredondarNotas()
 metricasColunas()
 
 # Separando em dois dataframes
-df_parquet = df_parquet[df_parquet['SG_UF_PROVA'] == 'SC']
+df_sc = df_parquet[df_parquet['SG_UF_PROVA'] == 'SC']
 df_brasil = df_parquet[df_parquet['SG_UF_PROVA'] != 'SC']
 
-
-df_parquet.to_parquet(r"arquivos\MICRODADOS_ENEM_SC_2023.parquet", index=False)
+# Salvando arquivos
+df_parquet.to_parquet(r"arquivos\MICRODADOS_ENEM_2023.parquet", index=False)
+df_sc.to_parquet(r"arquivos\MICRODADOS_ENEM_SC_2023.parquet", index=False)
 df_brasil.to_parquet(r"arquivos\MICRODADOS_ENEM_BRASIL_2023.parquet", index=False)
-
