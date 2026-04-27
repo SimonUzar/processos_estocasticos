@@ -7,7 +7,7 @@ st.set_page_config(page_title="Análise por Estado", layout="wide")
 
 @st.cache_data
 def carregarDados():
-    df = pd.read_parquet(r"arquivos\AMOSTRA.parquet")
+    df = pd.read_parquet(r"arquivos\MICRODADOS_ENEM_2023.parquet")
     return df
 
 

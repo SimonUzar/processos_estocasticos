@@ -1,9 +1,9 @@
 import pandas as pd
 
-#df_csv = pd.read_csv(r"arquivos\MICRODADOS_ENEM_2023.csv", encoding='latin1', sep=';')
-#df_csv.to_parquet(r"arquivos\MICRODADOS_ENEM_2023.parquet", index=False)
+df_csv = pd.read_csv(r"arquivos\MICRODADOS_ENEM_2023.csv", encoding='latin1', sep=';')
+df_csv.to_parquet(r"arquivos\MICRODADOS_ENEM_2023.parquet", index=False)
 
-df_parquet = pd.read_parquet(r"arquivos\AMOSTRA.parquet")
+df_parquet = pd.read_parquet(r"arquivos\MICRODADOS_ENEM_2023.parquet")
 
 def transformarColunas(df):
     # Nessa funcao iremos alterar o tamanho das colunas, otimizando o consumo de armazenamento e velocidade de busca
@@ -546,4 +546,4 @@ df_parquet = traduzirColunas(df_parquet)
 
 
 # Salvando arquivos
-df_parquet.to_parquet(r"arquivos\AMOSTRA.parquet", index=False)
+df_parquet.to_parquet(r"arquivos\MICRODADOS_ENEM_2023.parquet", index=False)
