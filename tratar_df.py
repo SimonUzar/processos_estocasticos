@@ -5,6 +5,56 @@ df_csv.to_parquet(r"arquivos\MICRODADOS_ENEM_2023.parquet", index=False)
 
 df_parquet = pd.read_parquet(r"arquivos\MICRODADOS_ENEM_2023.parquet")
 
+def removerColunas(df):
+    colunas_para_remover = [
+        'NU_ANO', 
+        'TP_ST_CONCLUSAO', 
+        'TP_ANO_CONCLUIU', 
+        'CO_MUNICIPIO_ESC', 
+        'NO_MUNICIPIO_ESC', 
+        'CO_UF_ESC', 
+        'SG_UF_ESC', 
+        'TP_DEPENDENCIA_ADM_ESC', 
+        'TP_LOCALIZACAO_ESC', 
+        'TP_SIT_FUNC_ESC', 
+        'CO_PROVA_CN',
+        'CO_PROVA_CH',
+        'CO_PROVA_LC',
+        'CO_PROVA_MT',
+        'TX_RESPOSTAS_CN',
+        'TX_RESPOSTAS_CH',
+        'TX_RESPOSTAS_LC',
+        'TX_RESPOSTAS_MT',
+        'TX_GABARITO_CN',
+        'TX_GABARITO_CH',
+        'TX_GABARITO_LC',
+        'TX_GABARITO_MT',
+        'Q003',
+        'Q004',
+        'Q007',
+        'Q008',
+        'Q009',
+        'Q010',
+        'Q011',
+        'Q012',
+        'Q013',
+        'Q014',
+        'Q015',
+        'Q016',
+        'Q017',
+        'Q018',
+        'Q019',
+        'Q020',
+        'Q021',
+        'Q022',
+        'Q023'
+    ]
+    
+    df = df.drop(columns=colunas_para_remover)
+
+    return df
+
+
 def transformarColunas(df):
     # Nessa funcao iremos alterar o tamanho das colunas, otimizando o consumo de armazenamento e velocidade de busca
 
@@ -544,6 +594,7 @@ metricasColunas(df_parquet)
 
 df_parquet = traduzirColunas(df_parquet)
 
+df_parquet = removerColunas(df_parquet)
 
 # Salvando arquivos
 df_parquet.to_parquet(r"arquivos\MICRODADOS_ENEM_2023.parquet", index=False)
