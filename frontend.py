@@ -2,13 +2,35 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import altair as alt
+import os
+import gdown
 
 st.set_page_config(page_title="Análise por Estado", layout="wide")
 
+url = f'https://drive.google.com/file/d/1IOb1X34VkepnGPEmPeuT0Fg0LHe34hsf/view?usp=sharing'
+output = 'dados_locais.parquet'
+
+@st.cache_resource
+def download_data(url, output_path):
+    # Verifica se o arquivo já existe para não baixar de novo desnecessariamente
+    if not os.path.exists(output_path):
+        with st.spinner("Baixando base de dados pesada (818MB)... Aguarde."):
+            gdown.download(url, output_path, quiet=False)
+    return output_path
+
+caminho_arquivo = download_data(url, output)
+
 @st.cache_data
-def carregarDados():
-    df = pd.read_parquet("MICRODADOS_ENEM_2023.parquet")
-    return df
+def load_dataframe(path):
+    return pd.read_parquet(path)
+
+
+try:
+    df = load_dataframe(caminho_arquivo)
+    st.success("Dados carregados com sucesso!")
+    st.write(df.head())
+except Exception as e:
+    st.error(f"Erro ao processar o arquivo: {e}")
 
 
 # Filtrar dados com base no estado escolhido
@@ -63,8 +85,6 @@ def plotarGraficoLinhas(dados, estado):
     return fig
 # Criação de gráficos em linha
 
-
-df = carregarDados()
 
 # Combobox dos estados
 col1, col2 = st.columns(2)
