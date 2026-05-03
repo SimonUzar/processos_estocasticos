@@ -7,7 +7,7 @@ import gdown
 
 st.set_page_config(page_title="Análise por Estado", layout="wide")
 
-url = 'https://drive.google.com/file/d/1LfnukJR6JYv1_cpn43RAX6bD0t8OjsJU/view?usp=sharing'
+url = 'https://drive.google.com/file/d/1ZL20OgcuLn0FX04UdioyF2AbAvuLKpZ6/view?usp=sharing'
 output = 'dados_locais.parquet'
 
 @st.cache_resource
