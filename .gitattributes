@@ -1,0 +1,15 @@
+# Normalização de texto
+* text=auto
+*.py text eol=lf
+*.txt text eol=lf
+
+# Arquivos de Dados (Git LFS)
+*.parquet filter=lfs diff=lfs merge=lfs -text
+*.csv filter=lfs diff=lfs merge=lfs -text
+*.pkl filter=lfs diff=lfs merge=lfs -text
+*.xlsx filter=lfs diff=lfs merge=lfs -text
+
+# Imagens e Binários
+*.png binary
+*.jpg binary
+*.pdf binary
