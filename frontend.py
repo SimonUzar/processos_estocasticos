@@ -14,7 +14,7 @@ output = 'dados_locais.parquet'
 def download_data(url, output_path):
     # Verifica se o arquivo já existe para não baixar de novo desnecessariamente
     if not os.path.exists(output_path):
-        with st.spinner("Baixando base de dados pesada (818MB)... Aguarde."):
+        with st.spinner("Baixando base de dados... Aguarde."):
             gdown.download(url, output_path, quiet=False)
     return output_path
 
@@ -27,8 +27,6 @@ def load_dataframe(path):
 
 try:
     df = load_dataframe(caminho_arquivo)
-    st.success("Dados carregados com sucesso!")
-    st.write(df.head())
 except Exception as e:
     st.error(f"Erro ao processar o arquivo: {e}")
 
@@ -104,8 +102,6 @@ abas = st.tabs(nomes_das_abas)
 # Abas das perguntas
 
 colunas_notas = ['NU_NOTA_CN', 'NU_NOTA_CH', 'NU_NOTA_LC', 'NU_NOTA_MT']
-
-col_g1, col_g2 = st.columns(2)
 
 with abas[0]:
     st.write(f"Pergunta 1 - Formação do pai, influencia?")
