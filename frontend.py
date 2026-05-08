@@ -32,31 +32,38 @@ except Exception as e:
 
 
 # Filtrar dados com base no estado escolhido
-def filtrarAgrupar(df, estado, coluna_x):
-    df_filtrado = df[df['SG_UF_PROVA'] == estado]
+def filtrarAgrupar(df, estado_1, estado_2, coluna_x):
+    df_filtrado = df[df['SG_UF_PROVA'].isin([estado_1, estado_2])].copy()
+    df_filtrado['SG_UF_PROVA'] = df_filtrado['SG_UF_PROVA'].cat.remove_unused_categories()
 
-    # Agrupa por média das notas
-    df_agrupado = df_filtrado.groupby(coluna_x)[colunas_notas].mean().reset_index()
+    df_medias = df_filtrado.groupby(['SG_UF_PROVA', coluna_x])[colunas_notas].mean().reset_index()
 
-    # Otimizando formato do df
-    df_melted = df_agrupado.melt(id_vars=coluna_x, var_name='Matéria', value_name='Nota Média')
-    return df_melted
+    return df_medias
 # Filtrar dados com base no estado escolhido
 
 
 # Criação de gráficos em barra
-def plotarGraficoBarras(dados, coluna_x, titulo_x):
+def plotarGraficoBarras(dados, coluna_x, nota):
+    nota_replaced = nota.replace("NU_NOTA_", "")
+
     fig = px.bar(
-        dados, 
-        x=coluna_x, 
-        y='Nota Média', 
-        color='Matéria',
+        dados,
+        x=coluna_x,
+        y=nota,
+        color='SG_UF_PROVA',
         barmode='group',
-        title=f"Médias por {coluna_x} - {titulo_x}",
-        labels={coluna_x: titulo_x, 'Nota Média': 'Média das Notas'}
+        text_auto='.0f',
+        labels={
+            coluna_x: "", 
+            "SG_UF_PROVA": "UF",
+            nota: nota_replaced  # Aqui removemos o NU_NOTA_ do eixo Y
+        },
+        category_orders={"coluna_x": coluna_x},
+        color_discrete_sequence=px.colors.qualitative.Prism
     )
 
-    fig.update_layout(legend_title_text='Matérias')
+    fig.update_layout(height=290)
+    
     return fig
 # Criação de gráficos em barra
 
@@ -105,103 +112,102 @@ colunas_notas = ['NU_NOTA_CN', 'NU_NOTA_CH', 'NU_NOTA_LC', 'NU_NOTA_MT']
 
 with abas[0]:
     st.write(f"Pergunta 1 - Formação do pai, influencia?")
-
-    dados_1 = filtrarAgrupar(df, estado_1, 'Q001')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'Q001', estado_1), width='stretch', key="q001_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'Q001')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'Q001', estado_2), width='stretch', key="q001_estado2")
+    
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'Q001')
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q001', 'NU_NOTA_CN'), width='stretch', key="q001_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q001', 'NU_NOTA_CH'), width='stretch', key="q001_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q001', 'NU_NOTA_LC'), width='stretch', key="q001_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q001', 'NU_NOTA_MT'), width='stretch', key="q001_nu_nota_mt")
 
 
 with abas[1]:
     st.write(f"Pergunta 2 - Formação da mãe, influencia?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'Q002')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'Q002', estado_1), width='stretch', key="q002_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'Q002')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'Q002', estado_2), width='stretch', key="q002_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'Q002')
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q002', 'NU_NOTA_CN'), width='stretch', key="q002_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q002', 'NU_NOTA_CH'), width='stretch', key="q002_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q002', 'NU_NOTA_LC'), width='stretch', key="q002_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q002', 'NU_NOTA_MT'), width='stretch', key="q002_nu_nota_mt")
 
 
 with abas[2]:
     st.write(f"Pergunta 3 - Idade, influencia?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'TP_FAIXA_ETARIA')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'TP_FAIXA_ETARIA', estado_1), width='stretch', key="tp_faixa_etaria_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'TP_FAIXA_ETARIA')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'TP_FAIXA_ETARIA', estado_2), width='stretch', key="tp_faixa_etaria_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'TP_FAIXA_ETARIA')
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_FAIXA_ETARIA', 'NU_NOTA_CN'), width='stretch', key="tp_faixa_etaria_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_FAIXA_ETARIA', 'NU_NOTA_CH'), width='stretch', key="tp_faixa_etaria_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_FAIXA_ETARIA', 'NU_NOTA_LC'), width='stretch', key="tp_faixa_etaria_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_FAIXA_ETARIA', 'NU_NOTA_MT'), width='stretch', key="tp_faixa_etaria_nu_nota_mt")
 
 
 with abas[3]:
     st.write(f"Pergunta 4 - Sexo, influencia?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'TP_SEXO')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'TP_SEXO', estado_1), width='stretch', key="tp_sexo_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'TP_SEXO')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'TP_SEXO', estado_2), width='stretch', key="tp_sexo_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'TP_SEXO')
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_SEXO', 'NU_NOTA_CN'), width='stretch', key="tp_sexo_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_SEXO', 'NU_NOTA_CH'), width='stretch', key="tp_sexo_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_SEXO', 'NU_NOTA_LC'), width='stretch', key="tp_sexo_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_SEXO', 'NU_NOTA_MT'), width='stretch', key="tp_sexo_nu_nota_mt")
 
 
 with abas[4]:
     st.write(f"Pergunta 5 - Estado Civil, influencia?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'TP_ESTADO_CIVIL')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'TP_ESTADO_CIVIL', estado_1), width='stretch', key="tp_estado_civil_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'TP_ESTADO_CIVIL')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'TP_ESTADO_CIVIL', estado_2), width='stretch', key="tp_estado_civil_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'TP_ESTADO_CIVIL')
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ESTADO_CIVIL', 'NU_NOTA_CN'), width='stretch', key="tp_estado_civil_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ESTADO_CIVIL', 'NU_NOTA_CH'), width='stretch', key="tp_estado_civil_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ESTADO_CIVIL', 'NU_NOTA_LC'), width='stretch', key="tp_estado_civil_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ESTADO_CIVIL', 'NU_NOTA_MT'), width='stretch', key="tp_estado_civil_nu_nota_mt")
 
 
 with abas[5]:
     st.write(f"Pergunta 6 - Tipo de Escola, influencia?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'TP_ESCOLA')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'TP_ESCOLA', estado_1), width='stretch', key="tp_escola_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'TP_ESCOLA')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'TP_ESCOLA', estado_2), width='stretch', key="tp_escola_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'TP_ESCOLA')
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ESCOLA', 'NU_NOTA_CN'), width='stretch', key="tp_escola_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ESCOLA', 'NU_NOTA_CH'), width='stretch', key="tp_escola_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ESCOLA', 'NU_NOTA_LC'), width='stretch', key="tp_escola_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ESCOLA', 'NU_NOTA_MT'), width='stretch', key="tp_escola_nu_nota_mt")
 
 
 with abas[6]:
     st.write(f"Pergunta 7 - Tipo de Estudo, influencia?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'TP_ENSINO')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'TP_ENSINO', estado_1), width='stretch', key="tp_ensino_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'TP_ENSINO')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'TP_ENSINO', estado_2), width='stretch', key="tp_ensino_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'TP_ENSINO')
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ENSINO', 'NU_NOTA_CN'), width='stretch', key="tp_ensino_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ENSINO', 'NU_NOTA_CH'), width='stretch', key="tp_ensino_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ENSINO', 'NU_NOTA_LC'), width='stretch', key="tp_ensino_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_ENSINO', 'NU_NOTA_MT'), width='stretch', key="tp_ensino_nu_nota_mt")
 
 
 with abas[7]:
     st.write(f"Pergunta 8 - Quantidade de membros familiares, influencia?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'Q005')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'Q005', estado_1), width='stretch', key="q005_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'Q005')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'Q005', estado_2), width='stretch', key="q005_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'Q005')
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q005', 'NU_NOTA_CN'), width='stretch', key="q005_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q005', 'NU_NOTA_CH'), width='stretch', key="q005_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q005', 'NU_NOTA_LC'), width='stretch', key="q005_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q005', 'NU_NOTA_MT'), width='stretch', key="q005_nu_nota_mt")
 
 
 with abas[8]:
     st.write(f"Pergunta 9 - Renda Familiar, influencia?")
     
-    dados_1 = filtrarAgrupar(df, estado_1, 'Q006')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'Q006', estado_1), width='stretch', key="q006_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'Q006')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'Q006', estado_2), width='stretch', key="q006_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'Q006')
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q006', 'NU_NOTA_CN'), width='stretch', key="q006_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q006', 'NU_NOTA_CH'), width='stretch', key="q006_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q006', 'NU_NOTA_LC'), width='stretch', key="q006_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q006', 'NU_NOTA_MT'), width='stretch', key="q006_nu_nota_mt")
 
 
 with abas[9]:
     st.write(f"Pergunta 10 - Treineiros")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'IN_TREINEIRO')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'IN_TREINEIRO', estado_1), width='stretch', key="in_treineiro_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'IN_TREINEIRO')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'IN_TREINEIRO', estado_2), width='stretch', key="in_treineiro_estado2")
-
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'IN_TREINEIRO')
+    st.plotly_chart(plotarGraficoBarras(dados, 'IN_TREINEIRO', 'NU_NOTA_CN'), width='stretch', key="in_treineiro_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'IN_TREINEIRO', 'NU_NOTA_CH'), width='stretch', key="in_treineiro_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'IN_TREINEIRO', 'NU_NOTA_LC'), width='stretch', key="in_treineiro_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'IN_TREINEIRO', 'NU_NOTA_MT'), width='stretch', key="in_treineiro_nu_nota_mt")
 
 
 with abas[10]:
@@ -252,31 +258,31 @@ with abas[10]:
 with abas[11]:
     st.write(f"Pergunta 12 - Língua Estrangeira, qual teve maior desempenho?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'TP_LINGUA')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'TP_LINGUA', estado_1), width='stretch', key="tp_lingua_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'TP_LINGUA')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'TP_LINGUA', estado_2), width='stretch', key="tp_lingua_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'TP_LINGUA')
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_LINGUA', 'NU_NOTA_CN'), width='stretch', key="tp_lingua_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_LINGUA', 'NU_NOTA_CH'), width='stretch', key="tp_lingua_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_LINGUA', 'NU_NOTA_LC'), width='stretch', key="tp_lingua_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_LINGUA', 'NU_NOTA_MT'), width='stretch', key="tp_lingua_nu_nota_mt")
 
 
 with abas[12]:
     st.write(f"Pergunta 13 - Raça, influencia?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'TP_COR_RACA')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'TP_COR_RACA', estado_1), width='stretch', key="tp_cor_raca_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'TP_COR_RACA')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'TP_COR_RACA', estado_2), width='stretch', key="tp_cor_raca_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'TP_COR_RACA')
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_COR_RACA', 'NU_NOTA_CN'), width='stretch', key="tp_cor_raca_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_COR_RACA', 'NU_NOTA_CH'), width='stretch', key="tp_cor_raca_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_COR_RACA', 'NU_NOTA_LC'), width='stretch', key="tp_cor_raca_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_COR_RACA', 'NU_NOTA_MT'), width='stretch', key="tp_cor_raca_nu_nota_mt")
 
 
 with abas[13]:
     st.write(f"Pergunta 14 - Nacionalidade, influencia?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'TP_NACIONALIDADE')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'TP_NACIONALIDADE', estado_1), width='stretch', key="tp_nacionalidade_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'TP_NACIONALIDADE')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'TP_NACIONALIDADE', estado_2), width='stretch', key="tp_nacionalidade_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'TP_NACIONALIDADE')
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_NACIONALIDADE', 'NU_NOTA_CN'), width='stretch', key="tp_nacionalidade_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_NACIONALIDADE', 'NU_NOTA_CH'), width='stretch', key="tp_nacionalidade_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_NACIONALIDADE', 'NU_NOTA_LC'), width='stretch', key="tp_nacionalidade_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'TP_NACIONALIDADE', 'NU_NOTA_MT'), width='stretch', key="tp_nacionalidade_nu_nota_mt")
 
 
 with abas[14]:
@@ -337,31 +343,31 @@ with abas[14]:
 with abas[15]:
     st.write(f"Pergunta 16 - Tem televisão?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'Q019')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'Q019', estado_1), width='stretch', key="q019_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'Q019')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'Q019', estado_2), width='stretch', key="q019_estado2")
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'Q019')
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q019', 'NU_NOTA_CN'), width='stretch', key="q019_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q019', 'NU_NOTA_CH'), width='stretch', key="q019_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q019', 'NU_NOTA_LC'), width='stretch', key="q019_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q019', 'NU_NOTA_MT'), width='stretch', key="q019_nu_nota_mt")
 
 
 with abas[16]:
     st.write(f"Pergunta 17 - Tem computador?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'Q024')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'Q024', estado_1), width='stretch', key="q024_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'Q024')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'Q024', estado_2), width='stretch', key="q024_estado2")
-       
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'Q024')
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q024', 'NU_NOTA_CN'), width='stretch', key="q024_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q024', 'NU_NOTA_CH'), width='stretch', key="q024_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q024', 'NU_NOTA_LC'), width='stretch', key="q024_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q024', 'NU_NOTA_MT'), width='stretch', key="q024_nu_nota_mt")
+  
 
 with abas[17]:
     st.write(f"Pergunta 18 - Tem acesso à internet?")
 
-    dados_1 = filtrarAgrupar(df, estado_1, 'Q025')
-    st.plotly_chart(plotarGraficoBarras(dados_1, 'Q025', estado_1), width='stretch', key="q025_estado1")
-
-    dados_2 = filtrarAgrupar(df, estado_2, 'Q025')
-    st.plotly_chart(plotarGraficoBarras(dados_2, 'Q025', estado_2), width='stretch', key="q025_estado2") 
+    dados = filtrarAgrupar(df, estado_1, estado_2, 'Q025')
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q025', 'NU_NOTA_CN'), width='stretch', key="q025_nu_nota_cn")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q025', 'NU_NOTA_CH'), width='stretch', key="q025_nu_nota_ch")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q025', 'NU_NOTA_LC'), width='stretch', key="q025_nu_nota_lc")
+    st.plotly_chart(plotarGraficoBarras(dados, 'Q025', 'NU_NOTA_MT'), width='stretch', key="q025_nu_nota_mt")
 
 
 with abas[18]:
